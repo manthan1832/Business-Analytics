@@ -1,0 +1,96 @@
+/*Query 1- query used for first insight*/
+
+SELECT
+  g.Name,
+  SUM(l.Quantity) purchases
+FROM Genre g
+JOIN Track t
+  ON t.GenreId = g.GenreId
+JOIN InvoiceLine l
+  ON l.TrackId = t.TrackId
+JOIN Invoice i
+  ON l.InvoiceId = i.InvoiceId
+JOIN Customer c
+  ON i.CustomerId = c.CustomerId
+WHERE c.Country = 'USA'
+GROUP BY 1
+ORDER BY 2 DESC
+
+
+
+/*Query 2- query used for second insight*/
+
+SELECT c.Country, 
+       count(c.CustomerId) num_customers
+FROM Customer c
+JOIN Invoice i
+  ON c.CustomerId=i.CustomerId
+JOIN InvoiceLine l
+  ON i.InvoiceId=l.InvoiceId
+JOIN Track t
+  ON l.TrackId=t.TrackId
+JOIN Album al
+  ON t.AlbumId=al.AlbumId
+JOIN Artist a
+  ON al.ArtistId=a.ArtistId
+WHERE a.Name= (SELECT t1.Name
+  	       FROM (SELECT a.Name, 
+                            SUM(l.Quantity) purchases
+	             FROM InvoiceLine l
+	             JOIN Track t
+		       ON l.TrackId=t.TrackId
+	             JOIN Album al
+	               ON t.AlbumId=al.AlbumId
+		     JOIN Artist a
+		       ON al.ArtistId=a.ArtistId
+		     GROUP BY 1
+	             ORDER BY 2 DESC
+		     LIMIT 1) t1
+               )
+GROUP BY c.Country
+ORDER BY num_customers DESC
+
+
+
+/*Query 3- query used for third insight*/
+
+SELECT
+  m.Name,
+  SUM(l.quantity) num_purchases
+FROM customer c
+JOIN invoice i
+  ON c.CustomerId = i.CustomerId
+JOIN InvoiceLine l
+  ON i.InvoiceId = l.InvoiceId
+JOIN Track t
+  ON l.TrackId = t.TrackId
+JOIN MediaType m
+  ON t.MediaTypeId = m.MediaTypeId
+GROUP BY 1
+ORDER BY 2 DESC
+
+
+
+/*Query 4- query used for fourth insight*/
+
+SELECT
+  p.Name,
+  COUNT(*) num_customers
+FROM Customer c
+JOIN Invoice i
+  ON c.CustomerId = i.CustomerId
+JOIN InvoiceLine l
+  ON i.InvoiceId = l.InvoiceId
+JOIN Track t
+  ON l.TrackId = t.TrackId
+JOIN PlaylistTrack pt
+  ON t.TrackId = pt.TrackId
+JOIN Playlist p
+  ON pt.PlaylistId = p.PlaylistId
+GROUP BY 1
+ORDER BY 2 DESC
+
+------------------------   THE END   ---------------------------------------------
+
+
+
